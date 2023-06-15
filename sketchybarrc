@@ -1,0 +1,106 @@
+PLUGIN_DIR="$HOME/.config/sketchybar/plugins"
+SPOTIFY_EVENT="com.spotify.client.PlaybackStateChanged"
+
+##### Bar Appearance #####
+# Configuring the general appearance of the bar, these are only some of the
+# options available. For all options see:
+# https://felixkratz.github.io/SketchyBar/config/bar
+# If you are looking for other colors, see the color picker:
+# https://felixkratz.github.io/SketchyBar/config/tricks#color-picker
+
+sketchybar --bar height=38                              
+sketchybar --bar margin=0               \
+                 corner_radius=0        \
+                 position=top             \
+                 color=0xff000000         \
+                 #border_color=0xfff5e0dc \
+                 #border_width=2          \
+                 topmost=on              \
+                 y_offset=0              \
+                 sticky=on
+
+##### Changing Defaults #####
+# We now change some default values that are applied to all further items
+# For a full list of all available item properties see:
+# https://felixkratz.github.io/SketchyBar/config/items
+
+sketchybar --default label.font="SF Pro:Bold:14.0" \
+                     label.color=0xfff5e0dc                \
+                     icon.font="SF Pro:Bold:14.0"         \
+                     icon.color=0xfff5e0dc                 \
+                     padding_left=5                        \
+                     padding_right=5                       \
+                     label.padding_left=4                  \
+                     label.padding_right=4                 \
+                     icon.padding_left=4                   \
+                     icon.padding_right=4
+
+##### Adding Right Items #####
+# In the same way as the left items we can add items to the right side.
+# Additional position (e.g. center) are available, see:
+# https://felixkratz.github.io/SketchyBar/config/items#adding-items-to-sketchybar
+
+# Some items refresh on a fixed cycle, e.g. the clock runs its script once
+# every 10s. Other items respond to events they subscribe to, e.g. the
+# volume.sh script is only executed once an actual change in system audio
+# volume is registered. More info about the event system can be found here:
+# https://felixkratz.github.io/SketchyBar/config/events
+
+sketchybar --add item clock center                              \
+           --set clock   update_freq=10                        \
+                         icon=􀐬                                \
+                         script="$PLUGIN_DIR/clock.sh"         \
+                                                               \
+           --add item wifi center                            \
+           --set wifi    script="$PLUGIN_DIR/wifi.sh"          \
+                         icon=􀙇                              \
+           --subscribe wifi wifi_change                        \
+                                                               \
+           --add item volume center                         \
+           --set volume  script="$PLUGIN_DIR/volume.sh"        \
+           --subscribe volume volume_change                    \
+                                                               \
+           --add item battery right\
+           --set battery script="$PLUGIN_DIR/battery.sh"       \
+                         update_freq=120                       \
+           --subscribe battery system_woke power_source_change \
+                                                               \
+           --add item apple left                       \
+           --set apple icon=􀣺                          \
+                       click_script="open -a 'Raycast'"  \
+           \
+           --add event spotify_update $SPOTIFY_EVENT \
+           \
+           --add item spotify left \
+           --set spotify script="$PLUGIN_DIR/spotify.sh" \
+           --subscribe spotify spotify_update mouse.entered.global mouse.exited.global \
+           \
+           --add item spotify.back left \
+           --set spotify.back script="$PLUGIN_DIR/spotify.sh" \
+                              drawing=off \
+                              icon=􀊊 \
+           --subscribe spotify.back mouse.clicked \
+           \
+           --add item spotify.playpause left \
+           --set spotify.playpause script="$PLUGIN_DIR/spotify.sh" \
+                                   drawing=off \
+           --subscribe spotify.playpause mouse.clicked \
+           \
+           --add item spotify.forward left \
+           --set spotify.forward script="$PLUGIN_DIR/spotify.sh" \
+                                 icon=􀊌 \
+                                 drawing=off \
+           --subscribe spotify.forward mouse.clicked \
+           #\
+           #--add item cpu right \
+           #--set cpu script="$PLUGIN_DIR/cpu.sh" \
+           #          update_freq=5 \
+           #          icon=􀧓 \
+           
+           
+
+##### Finalizing Setup #####
+# The below command is only needed at the end of the initial configuration to
+# force all scripts to run the first time, it should never be run in an item script.
+
+sketchybar --update
